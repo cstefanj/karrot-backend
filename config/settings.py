@@ -82,6 +82,7 @@ INSTALLED_APPS = (
     'karrot',
     'karrot.applications.ApplicationsConfig',
     'karrot.base.BaseConfig',
+    'karrot.community_feed.CommunityFeedConfig',
     'karrot.issues.IssuesConfig',
     'karrot.userauth.UserAuthConfig',
     'karrot.subscriptions.SubscriptionsConfig',
@@ -278,6 +279,10 @@ INFLUXDB_USE_THREADING = True
 HUEY = {
     'always_eager': True,
 }
+
+# If you have the email_reply_trimmer_service running, set this to 'http://localhost:4567/trim' (or similar)
+# https://github.com/yunity/email_reply_trimmer_service
+EMAIL_REPLY_TRIMMER_URL = None
 
 if 'USE_SILK' in os.environ:
     INSTALLED_APPS += ('silk', )

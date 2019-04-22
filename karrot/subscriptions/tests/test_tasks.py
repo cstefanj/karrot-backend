@@ -145,7 +145,7 @@ class TestMessagePushNotificationTitles(TestCase):
         )
 
         title = get_message_title(reply, 'en')
-        self.assertEqual(title, 'blablablabla... / {}'.format(author.display_name))
+        self.assertEqual(title, 'blablablablabl… / {}'.format(author.display_name))
 
     def test_pickup_message_title(self):
         author = UserFactory()
@@ -196,4 +196,4 @@ class TestMessagePushNotificationTitles(TestCase):
         message = conversation.messages.create(author=author, content='bla')
 
         title = get_message_title(message, 'en')
-        self.assertIn('💣', title)
+        self.assertIn('☹️', title)

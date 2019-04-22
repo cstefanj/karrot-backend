@@ -48,14 +48,13 @@ class ThreadPagination(CursorPagination):
 
 
 class MessagePagination(CursorPagination):
-    # TODO: create an index on 'created_at' for increased speed
     page_size = 10
-    ordering = '-created_at'
+    ordering = '-id'
 
 
 class ReverseMessagePagination(CursorPagination):
     page_size = 10
-    ordering = 'created_at'
+    ordering = 'id'
 
 
 class CanAccessConversation(BasePermission):
@@ -372,8 +371,8 @@ class ConversationMessageViewSet(
 
     def perform_create(self, serializer):
         message = serializer.save()
-        if message.conversation.type() == 'group':
-            group = message.conversation.target
+        group = message.conversation.group
+        if group:
             group.refresh_active_status()
 
 

@@ -64,6 +64,11 @@ class AuthUserSerializer(serializers.ModelSerializer):
             'mail_verified': {
                 'default': False,
             },
+            'email': {
+                'required': True,
+                'allow_blank': False,
+                'allow_null': False,
+            },
         }
 
     def validate_email(self, email):

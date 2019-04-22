@@ -74,7 +74,7 @@ class UserManager(BaseUserManager.from_queryset(UserQuerySet)):
 class User(AbstractBaseUser, BaseModel, LocationModel):
     objects = UserManager()
 
-    email = EmailField(unique=True, blank=True, null=True)
+    email = EmailField(unique=True, null=True)
     is_active = BooleanField(default=True)
     is_staff = BooleanField(default=False)
     is_superuser = BooleanField(default=False)

@@ -7,6 +7,7 @@ from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
 
+from karrot.conversations.models import ConversationNotificationStatus
 from karrot.issues.factories import IssueFactory, vote_for_remove_user, vote_for_no_change
 from karrot.issues.models import Vote, IssueStatus
 from karrot.issues.tasks import process_expired_votings
@@ -81,8 +82,8 @@ class TestConflictResolutionAPI(APITestCase, ExtractPaginationMixin):
         self.assertEqual(len(mail.outbox), 2)
         email_to_affected_user = next(email for email in mail.outbox if email.to[0] == self.affected_member.email)
         email_to_editor = next(email for email in mail.outbox if email.to[0] == notification_member.email)
-        self.assertIn('about you', email_to_affected_user.subject)
-        self.assertIn('about {}'.format(self.affected_member.display_name), email_to_editor.subject)
+        self.assertIn('with you', email_to_affected_user.subject)
+        self.assertIn('with {}'.format(self.affected_member.display_name), email_to_editor.subject)
 
         # vote on option
         response = self.client.post(
@@ -271,6 +272,22 @@ class TestCaseAPIPermissions(APITestCase, ExtractPaginationMixin):
         self.client.force_login(user=self.newcomer)
         response = self.get_results('/api/issues/{}/conversation/'.format(issue.id))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, response.data)
+
+    def test_cannot_leave_issue_conversation(self):
+        # Make sure that users don't leave the issue conversation, because the API doesn't let them in again
+        issue = self.create_issue()
+        self.client.force_login(user=self.member)
+        response = self.get_results('/api/issues/{}/conversation/'.format(issue.id))
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        conversation = response.data
+        response = self.client.patch(
+            '/api/conversations/{}/'.format(conversation['id']), {
+                'notifications': ConversationNotificationStatus.NONE.value,
+            },
+            format='json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['notifications'], ['You cannot leave a conversation that is not group public'])
 
     def test_cannot_vote_as_nonmember(self):
         issue = self.create_issue()
